@@ -1,5 +1,5 @@
 from flask import Flask, render_template, redirect, request, url_for, flash
-import json
+import json, os
 import datetime,random,asyncio
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
 
@@ -30,21 +30,46 @@ def load_user(user_id):
 def home():
 	return "Homepage"
 
-@app.route('/<string:username>')
+@app.route('/user/<string:username>')
 @login_required
 def user(username):
 	return f"{username}`s page"
 
 
-@app.route('/threads')
-@login_required
-def threads():
-	return "Threads page"
+@app.route("/newmessage", methods=["POST"])
+def getdata():
+	name = request.form.get("name")
+	message = request.form.get("message")
+	return "get"
 
-@app.route('/thread/<string:threadname>')
+
+@app.route('/threads/<string:username>')
 @login_required
-def thread(threadname):
-	return f"{threadname} page"
+def threads(username):
+	print(users.get(1))
+	thrs = []
+	thrnames = []
+	for c in os.listdir('data/threads'):
+		thrs.append(c)
+		thrnames.append(c.split('.')[0])
+	return render_template('threads.html', threads = thrs, threadnames = thrnames, username = username)
+
+
+
+
+@app.route('/thread/<string:username>/<string:threadname>')
+@login_required
+def thread(threadname,username):
+	messages = {}
+	with open(f'data/threads/{threadname}.json', 'r') as f:
+		data = json.load(f)
+		for d in data['messages']:
+			messages[d["name"]] = d['text']
+
+	return render_template('thread.html', messages = messages, thread = threadname, username = username)
+
+
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

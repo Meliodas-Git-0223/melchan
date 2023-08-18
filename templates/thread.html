@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}{{thread}}{% endblock %}
+
+{% block username %}{{username}}{% endblock %}
+
+{% block main %}
+
+{% for message in messages %}
+<div class="threadbl">
+    <a href="/user/{{message}}" >{{message}}</a>
+    <p class="msgtxt">{{messages.get(message)}}</p>
+</div>
+<div class="writemsg">
+    <input type="text" name="" placeholder="Сообщение" class="message">
+    <button onclick="send();">Отправить</button>
+</div>
+
+<script>
+    function send(){
+        let name = document.querySelector('.username').textContent;
+        let message = document.querySelector(".message");
+        const url = '/newmessage';
+        const xhr = new XMLHttpRequest();
+        const formData = new FormData();
+
+        formData.append('name', name);
+        formData.append('message', message.value);
+        xhr.open('POST', url, true);
+        xhr.send(formData);
+    }
+
+</script>
+{% endfor %}
+
+{% endblock %}

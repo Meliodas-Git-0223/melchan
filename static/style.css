@@ -2,6 +2,7 @@ body {
     margin: 0;
     padding: 0;
     min-height: 80vh;
+    background-color: #111111;
 }
 
 .header {
@@ -41,6 +42,7 @@ body {
 }
 
 .loginform{
+    color: white;
     text-align: center;
     display: block;
     width: 80%;
@@ -64,6 +66,8 @@ form {
 
 
 input {
+    background-color: #333333;
+    color: white;
     width: 60%;
     margin-top: 10px;
 }
@@ -75,4 +79,34 @@ input {
     text-align: center;
     margin-top: 75vh;
     margin-bottom: 0;
+}
+
+
+
+
+.threadbl{
+    display: block;
+    width: 100%;
+    height: 90px;
+    background-color: #333333;
+    padding-top: 20px;
+    border: 1px solid black;
+}
+
+.threadbl a{
+    text-align: center;
+    color: white;
+    text-decoration: none;
+    font-size: 32px;
+}
+
+.threadbl p{
+    color: white;
+    text-decoration: none;
+    font-size: 21px;
+    background-color: #111111;
+}
+
+.msgtxt{
+    text-align: left;
 }

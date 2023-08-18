@@ -4,15 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="static/style.css">
-
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <div class="header">
         <ul>
             <li><a href="/">Home</a></li>
-            <li>{% block username %}{% endblock %}</li>
-            <li> <a href="/treads">Threads</a> </li>
+            <li class="username">{% block username %}{% endblock %}</li>
+            <li> <a href="/threads">Threads</a> </li>
         </ul>
     </div>
     <div class="main">
@@ -24,6 +23,5 @@
         <p>&copy Copyright Talisman Mel</p>
         <p>За всё написанное посетителями сайта создатель ответственности не несёт.</p>
     </div>
-    <script src="/static/signin.js"></script>
 </body>
 </html>
