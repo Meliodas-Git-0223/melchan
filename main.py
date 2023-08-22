@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, request, url_for, flash
 import json, os
 import datetime,random,asyncio
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
 
 app = Flask(__name__)
@@ -43,30 +43,30 @@ def getdata():
 	return "get"
 
 
-@app.route('/threads/<string:username>')
+@app.route('/threads')
 @login_required
-def threads(username):
-	print(users.get(1))
+def threads():
+	print(current_user.name)
 	thrs = []
 	thrnames = []
 	for c in os.listdir('data/threads'):
 		thrs.append(c)
 		thrnames.append(c.split('.')[0])
-	return render_template('threads.html', threads = thrs, threadnames = thrnames, username = username)
+	return render_template('threads.html', threads = thrs, threadnames = thrnames, username = current_user.name)
 
 
 
 
-@app.route('/thread/<string:username>/<string:threadname>')
+@app.route('/thread/<string:threadname>')
 @login_required
-def thread(threadname,username):
+def thread(threadname):
 	messages = {}
 	with open(f'data/threads/{threadname}.json', 'r') as f:
 		data = json.load(f)
 		for d in data['messages']:
 			messages[d["name"]] = d['text']
 
-	return render_template('thread.html', messages = messages, thread = threadname, username = username)
+	return render_template('thread.html', messages = messages, thread = threadname, username = current_user.name)
 
 
 

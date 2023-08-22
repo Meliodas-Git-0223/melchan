@@ -108,5 +108,14 @@ input {
 }
 
 .msgtxt{
-    text-align: left;
+    margin-left: 20px;
+}
+
+.writemsg input{
+    width: 88%;
+}
+
+.writemsg button{
+    width: 8%;
+    overflow: hidden;
 }

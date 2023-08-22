@@ -12,6 +12,9 @@
             <li><a href="/">Home</a></li>
             <li class="username">{% block username %}{% endblock %}</li>
             <li> <a href="/threads">Threads</a> </li>
+            {% if current_user.name %}
+                <li><a href="/logout">Log out</a></li>
+            {% endif %}
         </ul>
     </div>
     <div class="main">

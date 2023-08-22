@@ -2,12 +2,13 @@
 
 {% block title %}Threads{% endblock %}
 
+{% block username %}<a href="/user/{{username}}">{{username}}</a>{% endblock %}
 
 {% block main %}
 
 {% for thread in threadnames %}
     <div class="threadbl">
-        <a href="thread/{{username}}/{{thread}}" >{{thread}}</a>
+        <a href="thread/{{thread}}" >{{thread}}</a>
     </div>
 {% endfor %}
 
