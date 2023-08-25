@@ -28,7 +28,9 @@ def load_user(user_id):
 
 @app.route('/')
 def home():
-	return "Homepage"
+	threads = os.listdir('data/threads')
+	rantr = random.choice(threads)
+	return render_template('home.html', username = 'login', rantr = rantr.split(".")[0])
 
 @app.route('/user/<string:username>')
 @login_required
@@ -37,10 +39,23 @@ def user(username):
 
 
 @app.route("/newmessage", methods=["POST"])
+@login_required
 def getdata():
 	name = request.form.get("name")
 	message = request.form.get("message")
-	return "get"
+	threadname = request.form.get('threadname')
+	print("get " + message + " from " + name + " in thread " + threadname)
+	with open(f'data/threads/{threadname}.json', 'r') as f:
+		data = json.load(f)
+		f.close()
+
+	
+	data['messages'].append({'name': name, 'text': message})
+	with open(f'data/threads/{threadname}.json', 'w') as f:
+		f.write(json.dumps(data, indent=4))
+		f.close()
+	redirect(f"/thread/{threadname}")
+	return 'get'
 
 
 @app.route('/threads')
@@ -55,7 +70,27 @@ def threads():
 	return render_template('threads.html', threads = thrs, threadnames = thrnames, username = current_user.name)
 
 
+@app.route('/threads/create')
+@login_required
+def create_thr():
+	return render_template("create_thr.html", username = current_user.name)
 
+@app.route('/newthread', methods = ["POST"])
+@login_required
+def new_thread():
+	name = request.form.get('name')
+	threadname = request.form.get('thrname')
+	print(threadname)
+	print(name)
+	with open(f'data/threads/{threadname}.json', 'x') as f:
+		f.close()
+
+	with open(f'data/threads/{threadname}.json', 'w') as f:
+		d = str({"created": name, "messages": []})
+		f.write(json.dump(d, indent=4))
+		f.close()
+
+	return 'done'
 
 @app.route('/thread/<string:threadname>')
 @login_required
@@ -63,8 +98,9 @@ def thread(threadname):
 	messages = {}
 	with open(f'data/threads/{threadname}.json', 'r') as f:
 		data = json.load(f)
-		for d in data['messages']:
-			messages[d["name"]] = d['text']
+		messages = data['messages']
+		f.close()
+	print(messages)
 
 	return render_template('thread.html', messages = messages, thread = threadname, username = current_user.name)
 

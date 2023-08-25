@@ -6,6 +6,10 @@
 
 {% block main %}
 
+<div class="threadbl">
+    <a href="threads/create" >Создать тему</a>
+</div>
+
 {% for thread in threadnames %}
     <div class="threadbl">
         <a href="thread/{{thread}}" >{{thread}}</a>

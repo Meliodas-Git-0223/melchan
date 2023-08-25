@@ -81,7 +81,19 @@ input {
     margin-bottom: 0;
 }
 
+.main {
+    display: block;
+    width: 100%;
+    color: white;
+}
 
+.main h1, h2, h3{
+    margin-left: 20px;
+}
+
+.main p{
+    margin-left: 30px;
+}
 
 
 .threadbl{
@@ -118,4 +130,15 @@ input {
 .writemsg button{
     width: 8%;
     overflow: hidden;
+}
+
+.randomthread {
+    display: block;
+    text-align: center;
+}
+
+.randomthread a{
+    color: white;
+    text-decoration: none;
+    font-size: large
 }
