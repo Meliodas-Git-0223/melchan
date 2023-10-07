@@ -1,8 +1,8 @@
 from flask import Flask, render_template, redirect, request, url_for, flash
 import json, os
-import datetime,random,asyncio
+import random,asyncio
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'qaswedfrtghyu'
@@ -42,15 +42,21 @@ def user(username):
 @login_required
 def getdata():
 	name = request.form.get("name")
+	cur = datetime.now()
+	date = f"{cur.day}.{cur.month}.{cur.year}, {cur.hour}:{cur.minute}:{cur.second}"
 	message = request.form.get("message")
 	threadname = request.form.get('threadname')
+	messageid = random.randint(0,65000)
 	print("get " + message + " from " + name + " in thread " + threadname)
 	with open(f'data/threads/{threadname}.json', 'r') as f:
 		data = json.load(f)
+		for tr in data['messages']:
+			if tr['id'] == messageid:
+				messageid = random.randint(0,65000)
 		f.close()
 
 	
-	data['messages'].append({'name': name, 'text': message})
+	data['messages'].append({'name': name,'date':date, 'text': message, 'id':messageid})
 	with open(f'data/threads/{threadname}.json', 'w') as f:
 		f.write(json.dumps(data, indent=4))
 		f.close()
@@ -78,7 +84,11 @@ def create_thr():
 @app.route('/newthread', methods = ["POST"])
 @login_required
 def new_thread():
-	name = request.form.get('name')
+	name = current_user.name
+	cur = datetime.now()
+	id = random.randint(0,646116)
+	cur = datetime.now()
+	date = f"{cur.day}.{cur.month}.{cur.year}, {cur.hour}:{cur.minute}:{cur.second}"
 	threadname = request.form.get('thrname')
 	print(threadname)
 	print(name)
@@ -86,7 +96,8 @@ def new_thread():
 		f.close()
 
 	with open(f'data/threads/{threadname}.json', 'w') as f:
-		d = str({"created": name, "messages": []})
+		d = {"name": name,"date":date, "id":id, "messages": []}
+		print(d)
 		f.write(json.dump(d, indent=4))
 		f.close()
 
@@ -104,6 +115,18 @@ def thread(threadname):
 
 	return render_template('thread.html', messages = messages, thread = threadname, username = current_user.name)
 
+
+@app.route('/threadadmin/<string:threadname>')
+@login_required
+def threadadmin(threadname):
+	messages = {}
+	with open(f'data/threads/{threadname}.json', 'r') as f:
+		data = json.load(f)
+		messages = data['messages']
+		f.close()
+	print(messages)
+
+	return render_template('threadadmin.html', messages = messages, thread = threadname, username = current_user.name)
 
 
 
@@ -190,6 +213,29 @@ def signin():
 def logout():
     logout_user()
     return "Logged out successfully."
+
+@app.route('/delete/message/<string:threadname>/<string:messageid>')
+@login_required
+def delete_message(threadname,messageid):
+	with open('data/admins.json') as a:
+		dat = json.load(a)
+	if current_user.name in dat['admins']:
+		with open(f'data/threads/{threadname}.json', 'r') as f:
+			data = json.load(f)
+			f.close()
+
+		for el in data['messages']:
+			if el['id'] == int(messageid):
+				data['messages'].remove(el)
+
+		with open(f'data/threads/{threadname}.json', 'w') as f:
+			f.write(json.dumps(data, indent=4))
+			f.close()
+		
+		return "removed successfully."
+	else:
+		return 'you are not Admin. Fuck you.'
+
 
 
 if __name__ == "__main__":

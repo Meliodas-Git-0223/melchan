@@ -12,12 +12,14 @@
             <a href="/user/{{message['name']}}" >{{message['name']}}</a>
             <p class="msgtxt" style="color: white; text-decoration: none; font-size: 21px; background-color: rgb(1, 46, 1);">{{message['text']}}</p>
             <p class="msgdate" style="text-align: right; background-color: rgb(1, 94, 1); margin-right: 20px;">{{message['date']}}</p>
+            <a href="/delete/message/{{thread}}/{{message['id']}}">Remove</a>
         </div>
     {% else %}
         <div class="threadbl" style="display: block; width: 100%; min-height: 170px; background-color: #333333; padding-top: 20px; border: 1px solid black;">
             <a href="/user/{{message['name']}}" >{{message['name']}}</a>
             <p class="msgtxt" style="color: white; text-decoration: none; font-size: 21px; background-color: #111111;">{{message['text']}}</p>
             <p class="msgdate" style="text-align: right;">{{message['date']}}</p>
+           <p></p> <a href="/delete/message/{{thread}}/{{message['id']}}">Remove</a></p>
         </div>
     {% endif %}
 {% endfor %}
