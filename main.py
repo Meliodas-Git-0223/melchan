@@ -1,5 +1,5 @@
 from flask import Flask, render_template, redirect, request, url_for, flash
-import json, os
+import json, os, hashlib
 import random,asyncio
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from datetime import datetime
@@ -75,6 +75,16 @@ def threads():
 		thrnames.append(c.split('.')[0])
 	return render_template('threads.html', threads = thrs, threadnames = thrnames, username = current_user.name)
 
+@app.route('/threadsadmin')
+@login_required
+def threadsadmin():
+	print(current_user.name)
+	thrs = []
+	thrnames = []
+	for c in os.listdir('data/threads'):
+		thrs.append(c)
+		thrnames.append(c.split('.')[0])
+	return render_template('threadsadmin.html', threads = thrs, threadnames = thrnames, username = current_user.name)
 
 @app.route('/threads/create')
 @login_required
@@ -85,21 +95,22 @@ def create_thr():
 @login_required
 def new_thread():
 	name = current_user.name
-	cur = datetime.now()
 	id = random.randint(0,646116)
 	cur = datetime.now()
 	date = f"{cur.day}.{cur.month}.{cur.year}, {cur.hour}:{cur.minute}:{cur.second}"
 	threadname = request.form.get('thrname')
+	d = {"name": name,"date":date, "id":id, "messages": []}
 	print(threadname)
 	print(name)
 	with open(f'data/threads/{threadname}.json', 'x') as f:
 		f.close()
 
-	with open(f'data/threads/{threadname}.json', 'w') as f:
-		d = {"name": name,"date":date, "id":id, "messages": []}
+	with open(f'data/threads/{threadname}.json', 'wt') as df:
 		print(d)
-		f.write(json.dump(d, indent=4))
-		f.close()
+		df.write(json.dump(d, indent=4))
+		df.close()
+	
+	redirect(f'thread/{threadname}')
 
 	return 'done'
 
@@ -145,7 +156,9 @@ def login():
 			f.close()
 		user_id = int(r)
 		user = users.get(user_id)
-		if user and user.password == password:
+		hash_object = hashlib.sha256(f'{password}'.encode('utf-8'))
+		password_hash = hash_object.hexdigest()
+		if user and user.password == password_hash:
 			login_user(user)
 			return redirect(url_for('threads'))
 	return render_template('login.html', username = 'login')
@@ -178,7 +191,11 @@ def signin():
 			
 			if user_id not in tid:
 				if name not in tname:
-					data['users'].append({"id": user_id, 'name': name, 'password': password})
+
+					hash_object = hashlib.sha256(f'{password}'.encode('utf-8'))
+					password_hash = hash_object.hexdigest()
+
+					data['users'].append({"id": user_id, 'name': name, 'password': password_hash})
 					print(data)
 					with open('data/users.json', 'w') as df:
 						df.write(json.dumps(data, indent=4))
@@ -232,6 +249,20 @@ def delete_message(threadname,messageid):
 			f.write(json.dumps(data, indent=4))
 			f.close()
 		
+		return "removed successfully."
+	else:
+		return 'you are not Admin. Fuck you.'
+
+
+@app.route('/delete/thread/<string:threadname>')
+@login_required
+def delete_thread(threadname):
+	with open('data/admins.json') as a:
+		dat = json.load(a)
+	if current_user.name in dat['admins']:
+		os.remove(f'data/threads/{threadname}.json')
+		
+
 		return "removed successfully."
 	else:
 		return 'you are not Admin. Fuck you.'
