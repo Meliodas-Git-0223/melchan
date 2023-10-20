@@ -99,7 +99,7 @@ def new_thread():
 	cur = datetime.now()
 	date = f"{cur.day}.{cur.month}.{cur.year}, {cur.hour}:{cur.minute}:{cur.second}"
 	threadname = request.form.get('thrname')
-	d = {"name": name,"date":date, "id":id, "messages": []}
+	d = "{" + f''' "name": "{name}","date":"{date}", "id":{id}, "messages": [] ''' + "}"
 	print(threadname)
 	print(name)
 	with open(f'data/threads/{threadname}.json', 'x') as f:
@@ -107,9 +107,9 @@ def new_thread():
 
 	with open(f'data/threads/{threadname}.json', 'wt') as df:
 		print(d)
-		df.write(json.dump(d, indent=4))
+		df.write(str(d))
 		df.close()
-	
+			
 	redirect(f'thread/{threadname}')
 
 	return 'done'
@@ -121,10 +121,11 @@ def thread(threadname):
 	with open(f'data/threads/{threadname}.json', 'r') as f:
 		data = json.load(f)
 		messages = data['messages']
+		date = data['date']
 		f.close()
 	print(messages)
 
-	return render_template('thread.html', messages = messages, thread = threadname, username = current_user.name)
+	return render_template('thread.html',date = date, messages = messages, thread = threadname, username = current_user.name)
 
 
 @app.route('/threadadmin/<string:threadname>')
@@ -138,6 +139,25 @@ def threadadmin(threadname):
 	print(messages)
 
 	return render_template('threadadmin.html', messages = messages, thread = threadname, username = current_user.name)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -230,6 +250,21 @@ def signin():
 def logout():
     logout_user()
     return "Logged out successfully."
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 @app.route('/delete/message/<string:threadname>/<string:messageid>')
 @login_required

@@ -119,6 +119,43 @@ input {
     background-color: #111111;
 }
 
+
+.messbl{
+    display: block;
+    width: 100%;
+    min-height: 170px;
+    height:auto;
+    background-color:rgb(1, 94, 1);
+    padding-top: 20px;
+    border: 1px solid black;
+}
+
+.messbl a{
+    text-align: center;
+    color: white;
+    text-decoration: none;
+    font-size: 32px;
+}
+
+.messbltxt{
+    color: white;
+    text-decoration: none;
+    font-size: 21px;
+    background-color: #111111;
+}
+
+.messbldat{
+    color: white;
+    text-decoration: none;
+    font-size: 21px;
+}
+
+
+.thread_date{
+    text-align: right;
+
+}
+
 .msgtxt{
     margin-left: 20px;
 }

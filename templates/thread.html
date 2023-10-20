@@ -6,18 +6,20 @@
 
 {% block main %}
 
+<p class="thread_date">{{ date }}</p>
+
 {% for message in messages %}
     {% if current_user.name == message['name'] %}
-        <div class="threadbl" style="display: block; width: 100%; min-height: 170px; background-color: rgb(1, 94, 1); padding-top: 20px; border: 1px solid black;">
+        <div class="messbl", style="background-color:rgb(1, 94, 1);">
             <a href="/user/{{message['name']}}" >{{message['name']}}</a>
-            <p class="msgtxt" style="color: white; text-decoration: none; font-size: 21px; background-color: rgb(1, 46, 1);">{{message['text']}}</p>
-            <p class="msgdate" style="text-align: right; background-color: rgb(1, 94, 1); margin-right: 20px;">{{message['date']}}</p>
+            <p class="messbltxt" style="color: white; text-decoration: none; font-size: 21px; background-color: rgb(1, 46, 1);">{{message['text']}}</p>
+            <p class="messbldat" style="text-align: right; background-color: rgb(1, 94, 1); margin-right: 20px;">{{message['date']}}</p>
         </div>
     {% else %}
-        <div class="threadbl" style="display: block; width: 100%; min-height: 170px; background-color: #333333; padding-top: 20px; border: 1px solid black;">
+        <div class="messbl" style="background-color: #333333;">
             <a href="/user/{{message['name']}}" >{{message['name']}}</a>
-            <p class="msgtxt" style="color: white; text-decoration: none; font-size: 21px; background-color: #111111;">{{message['text']}}</p>
-            <p class="msgdate" style="text-align: right;">{{message['date']}}</p>
+            <p class="messbltxt" style="color: white; text-decoration: none; font-size: 21px; background-color: #111111;">{{message['text']}}</p>
+            <p class="messbldat" style="text-align: right;">{{message['date']}}</p>
         </div>
     {% endif %}
 {% endfor %}
