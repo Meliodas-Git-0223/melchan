@@ -1,11 +1,24 @@
-from flask import Flask, render_template, redirect, request, url_for, flash
+from flask import Flask, render_template, redirect, request, url_for
 import json, os, hashlib
-import random,asyncio
+import random
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from datetime import datetime
+from werkzeug.utils import secure_filename
+from packages import b64
+
+UPLOAD_FOLDER = 'static/media/'
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'webp', 'mp3', 'gif', 'webm', 'mp4', 'ogg', 'avi', 'bmp', 'wav'])
+images = ['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif']
+videos = ['webm', 'mp4','ogg', 'avi']
+audio = [ 'mp3', 'wav']
 
 app = Flask(__name__)
-app.secret_key = 'qaswedfrtghyu'
+app.secret_key = 'wert7iyujhgfdesw345'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+
+
+
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
@@ -40,28 +53,52 @@ def user(username):
 
 @app.route("/newmessage", methods=["POST"])
 @login_required
-def getdata():
+def getdatamedia():
 	name = request.form.get("name")
 	cur = datetime.now()
 	date = f"{cur.day}.{cur.month}.{cur.year}, {cur.hour}:{cur.minute}:{cur.second}"
+	tfile = request.form.get('tfile')
+	if tfile == "true":
+		file = request.files['file']
+		if file.filename.split(".")[1] in videos:
+			media = 'video'
+		elif file.filename.split(".")[1] in images:
+			media = 'image'
+		elif file.filename.split(".")[1] in audio:
+			media = 'audio'
+
+		print(file.filename.split(".")[1])
+		
+
+		if file and allowed_file(file.filename):
+			filename = secure_filename(b64.encode(f"{cur.day}.{cur.month}.{cur.year}, {cur.hour}:{cur.minute}:{cur.second}:{cur.microsecond}") + "."+ file.filename.split(".")[1])
+			file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+	
+	if tfile =='false':
+		media = None
+		filename = None
+
+	threadname = request.form.get("threadname")
 	message = request.form.get("message")
-	threadname = request.form.get('threadname')
-	messageid = random.randint(0,65000)
+	messageid = int(f"{cur.day}{cur.month}{cur.year}{cur.hour}{cur.minute}{cur.second}{cur.microsecond}")
 	print("get " + message + " from " + name + " in thread " + threadname)
+	
 	with open(f'data/threads/{threadname}.json', 'r') as f:
 		data = json.load(f)
-		for tr in data['messages']:
-			if tr['id'] == messageid:
-				messageid = random.randint(0,65000)
 		f.close()
-
+		
 	
-	data['messages'].append({'name': name,'date':date, 'text': message, 'id':messageid})
 	with open(f'data/threads/{threadname}.json', 'w') as f:
+		data['messages'].append({'name': name,'date':date, 'text': message, 'id':messageid, 'media':media, 'media-filename':filename})
 		f.write(json.dumps(data, indent=4))
 		f.close()
-	redirect(f"/thread/{threadname}")
-	return 'get'
+	return 'get', 200
+
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
 @app.route('/threads')
