@@ -315,6 +315,8 @@ def delete_message(threadname,messageid):
 
 		for el in data['messages']:
 			if el['id'] == int(messageid):
+				if el['media-filename']:
+					os.remove('static/media/'+el['media-filename'])
 				data['messages'].remove(el)
 
 		with open(f'data/threads/{threadname}.json', 'w') as f:

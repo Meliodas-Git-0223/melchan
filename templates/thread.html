@@ -9,6 +9,8 @@
 <h1 class="threadname">{{thread}}</h1>
 <p class="thread_date">{{ date }}</p>
 
+<a href="/threads" > <-- Назад</a>
+
 {% for message in messages %}
     {% if current_user.name == message['name'] %}
         <div class="messbl", style="background-color:rgb(1, 94, 1);">
