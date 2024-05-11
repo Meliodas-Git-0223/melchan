@@ -72,7 +72,7 @@ form.senderr {
 }
 
 
-input {
+.thrname {
     background-color: #333333;
     color: white;
     width: 60%;
@@ -167,14 +167,54 @@ input {
     margin-left: 20px;
 }
 
-.writemsg input{
-    width: 88%;
+@media  screen and (min-width:1000px) {
+    .writemsg input{
+        width: 88%;
+        height: 25px;
+        margin-bottom: 5px;
+
+    }
+
+    .writemsg button{
+        width: 8%;
+        height: 25px;
+        overflow: hidden;
+    }   
+
 }
 
-.writemsg button{
-    width: 8%;
-    overflow: hidden;
+@media  screen and (min-width:600px) and (max-width:999px){
+
+    .writemsg input{
+        width: 85%;
+        height: 25px;
+        margin-bottom: 5px;
 }
+
+    .writemsg button{
+        width: 11%;
+        height: 25px;
+        overflow: hidden;
+    }
+
+}
+
+@media  screen and (max-width:599px) {
+
+    .writemsg input{
+        width: 75%;
+        height: 30px;
+        margin-bottom: 5px;
+    }
+
+    .writemsg button{
+        width: 20%;
+        height: 30px;
+        overflow: hidden;
+    }
+
+}
+
 
 .randomthread {
     display: block;

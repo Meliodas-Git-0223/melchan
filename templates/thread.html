@@ -9,26 +9,27 @@
 <h1 class="threadname">{{thread}}</h1>
 <p class="thread_date">{{ date }}</p>
 
-<a href="/threads" > <-- Назад</a>
+<a href="/threads" style="color: white; text-decoration: none;"> <-- Назад</a>
 
 {% for message in messages %}
     {% if current_user.name == message['name'] %}
         <div class="messbl", style="background-color:rgb(1, 94, 1);">
             <a href="/user/{{message['name']}}" >    {{message['name']}}</a>
             <p class="messbltxt" style="color: white; text-decoration: none; font-size: 21px; background-color: rgb(1, 46, 1); overflow-x: scroll;">{{message['text']}}</p>
-            <p class="messbldat" style="text-align: right; background-color: rgb(1, 94, 1); margin-right: 20px;">{{message['date']}}</p>
             {% if message['media']%}
                 {% if message['media'] == 'image' %}
-                    <img src="/static/media/{{message['media-filename']}}" alt="", width="250px" >
+                    <img src="/static/media/{{message['media-filename']}}" alt="", width="250px" onclick = "makebigger(this);">
                 {% elif message['media'] == 'audio' %}
                     <audio controls src="/static/media/{{message['media-filename']}}"></audio>
                 
                 {% else %}
-                <video width="250px" controls>
+                <video width="250px" controls onclick = "makebigger(this);">
                     <source src="/static/media/{{message['media-filename']}}" type="video/{{message['media-filename'].split('.')[1]}}">
                 </video>
                 {% endif %}
             {% endif %}
+            <p class="messbldat" style="text-align: right; background-color: rgb(1, 94, 1); margin-right: 20px;">{{message['date']}}</p>
+            <a href="/deletemypost/{{thread}}/{{message['id']}}" style="text-align: right; background-color: rgb(1, 94, 1); color: aliceblue; text-decoration: none; margin-right: 20px;">Удалить</a>
         </div>
     {% else %}
         <div class="messbl" style="background-color: #333333;">
@@ -37,7 +38,7 @@
             <p class="messbldat" style="text-align: right;">{{message['date']}}</p>
             {% if message['media']%}
                 {% if message['media'] == 'image' %}
-                    <img src="/static/media/{{message['media-filename']}}" alt="", width="250px" >
+                    <img src="/static/media/{{message['media-filename']}}" alt="", width="250px" onclick="makebigger(this);">
                 {% elif message['media'] == 'audio' %}
                     <audio controls src="/static/media/{{message['media-filename']}}"></audio>
                 
@@ -55,10 +56,12 @@
     
     <input type="file" name="file" id="file">
     <input type="text" name="" placeholder="Сообщение" class="message" autocomplete="no">
-    <button type="submit" class="send" onclick="send()">отправить</button>
+    <button type="submit" id="send" class="send" onclick="send()">отправить</button>
     
     
 </div>
+
+<script src="/static/imagebigger.js"></script>
 
 <script>
     
@@ -92,6 +95,20 @@
         message.value = '';
         file.files = emptyFile.files;
     }
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+    // Функция для имитации клика по кнопке
+    function triggerButtonClick(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Предотвращаем стандартное поведение Enter
+            document.getElementById('send').click(); // Имитируем клик по кнопке
+        }
+    }
+
+    // Добавляем обработчик события keydown к телу документа
+    document.addEventListener('keydown', triggerButtonClick);
+    });
 </script>
 
 {% endblock %}

@@ -51,26 +51,48 @@
 {% endfor %}
 
 <div class="writemsg">
-    <input type="text" name="" placeholder="Сообщение" class="message">
-    <button onclick="send();">Отправить</button>
+    
+    <input type="file" name="file" id="file">
+    <input type="text" name="" placeholder="Сообщение" class="message" autocomplete="no">
+    <button type="submit" class="send" onclick="send()">отправить</button>
+    
+    
 </div>
 
+<script src="/static/imagebigger.js"></script>
+
 <script>
+    
+    
+
+
     function send(){
-        let name = document.querySelector('.username').textContent;
         let message = document.querySelector(".message");
-        let threadname = '{{thread}}';
+        let name = document.querySelector('.username').textContent;
+        let file = document.querySelector('#file');
+        let threadname = document.querySelector('.threadname').textContent
+        let emptyFile = document.createElement('input');
+        emptyFile.type = 'file';
+
         const url = '/newmessage';
         const xhr = new XMLHttpRequest();
         const formData = new FormData();
-        formData.append('name', name);
-        formData.append('message', message.value);
-        formData.append('threadname', threadname)
-        xhr.open('POST', url, true);
-        xhr.send(formData);
-        message.value = '';
-    }
 
+	    formData.append('message', message.value);
+        formData.append('name', name);
+        if(file.files[0] != undefined){
+            formData.append('file', file.files[0]); 
+        }
+        formData.append('tfile',(file.files[0] != undefined))
+        formData.append('threadname', threadname);
+
+	    xhr.open('POST', url, true);
+	    xhr.send(formData);
+
+        
+        message.value = '';
+        file.files = emptyFile.files;
+    }
 </script>
 
 {% endblock %}

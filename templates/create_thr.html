@@ -13,6 +13,11 @@
 </div>
 
 <script>
+    let isExecuted = false;
+    function redirect(threadname){
+        location.replace('/thread/'+threadname)
+    }
+
     function create(){
         let name = document.querySelector('.username').textContent;
         let threadname = document.querySelector(".thrname").value;
@@ -20,9 +25,14 @@
         const xhr = new XMLHttpRequest();
         const formData = new FormData();
         formData.append('name', name)
-        formData.append('thrname', threadname)
+        formData.append('thrname', threadname);
         xhr.open('POST', url, true);
         xhr.send(formData);
+        if (!isExecuted) {
+            setTimeout(redirect, 1000, threadname);
+            isExecuted = true; // Устанавливаем флаг, что функция уже была выполнена
+            }
+        
     }
 
 </script>

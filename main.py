@@ -7,9 +7,9 @@ from werkzeug.utils import secure_filename
 from packages import b64
 
 UPLOAD_FOLDER = 'static/media/'
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'webp', 'mp3', 'gif', 'webm', 'mp4', 'ogg', 'avi', 'bmp', 'wav'])
-images = ['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif']
-videos = ['webm', 'mp4','ogg', 'avi']
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'webp', 'mp3', 'gif', 'webm', 'mp4', 'ogg', 'avi', 'bmp', 'wav','hevc', 'heif'])
+images = ['png', 'jpg','heif', 'jpeg', 'webp', 'bmp', 'gif']
+videos = ['webm', 'mp4','ogg', 'avi', 'hevc']
 audio = [ 'mp3', 'wav']
 
 app = Flask(__name__)
@@ -42,8 +42,11 @@ def load_user(user_id):
 @app.route('/')
 def home():
 	threads = os.listdir('data/threads')
-	rantr = random.choice(threads)
-	return render_template('home.html', username = 'login', rantr = rantr.split(".")[0])
+	if len(threads) != 0:
+		rantr = random.choice(threads)
+		return render_template('home.html', username = 'login' , rantr = b64.decode(rantr.split(".")[0].replace("$","/")))
+	else:
+		return render_template('home.html', username = 'login' , rantr = None)
 
 @app.route('/user/<string:username>')
 @login_required
@@ -54,7 +57,7 @@ def user(username):
 @app.route("/newmessage", methods=["POST"])
 @login_required
 def getdatamedia():
-	name = request.form.get("name")
+	name = current_user.name
 	cur = datetime.now()
 	date = f"{cur.day}.{cur.month}.{cur.year}, {cur.hour}:{cur.minute}:{cur.second}"
 	tfile = request.form.get('tfile')
@@ -83,22 +86,45 @@ def getdatamedia():
 	messageid = int(f"{cur.day}{cur.month}{cur.year}{cur.hour}{cur.minute}{cur.second}{cur.microsecond}")
 	print("get " + message + " from " + name + " in thread " + threadname)
 	
-	with open(f'data/threads/{threadname}.json', 'r') as f:
+	with open(f'data/threads/{b64.encode(threadname).replace("/", "$")}.json', 'r') as f:
 		data = json.load(f)
 		f.close()
 		
-	
-	with open(f'data/threads/{threadname}.json', 'w') as f:
-		data['messages'].append({'name': name,'date':date, 'text': message, 'id':messageid, 'media':media, 'media-filename':filename})
-		f.write(json.dumps(data, indent=4))
-		f.close()
-	return 'get', 200
+	if message:
+		with open(f'data/threads/{b64.encode(threadname).replace("/", "$")}.json', 'w') as f:
+			data['messages'].append({'name': name,'date':date, 'text': message, 'id':messageid, 'media':media, 'media-filename':filename})
+			f.write(json.dumps(data, indent=4))
+			f.close()
+		return 200
+	else:
+		return 0
 
 
 
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
+
+@app.route('/deletemypost/<string:threadname>/<string:messid>')
+@login_required
+def removepost(threadname,messid):
+	threadname = b64.encode(threadname).replace("/", "$")
+	with open(f'data/threads/{threadname}.json', 'r') as f:
+		data = json.load(f)
+		f.close()
+
+	for el in data['messages']:
+		if el['id'] == int(messid):
+			if el['media-filename']:
+				os.remove('static/media/'+el['media-filename'])
+			data['messages'].remove(el)
+
+	with open(f'data/threads/{threadname}.json', 'w') as f:
+		f.write(json.dumps(data, indent=4))
+		f.close()
+		
+	return redirect('/thread/'+ b64.decode(threadname))
 
 
 @app.route('/threads')
@@ -108,8 +134,10 @@ def threads():
 	thrs = []
 	thrnames = []
 	for c in os.listdir('data/threads'):
+		if "$" in c.split('.')[0]:
+			c = c.split('.')[0].replace('$',"/")+ '.' + c.split('.')[1]
 		thrs.append(c)
-		thrnames.append(c.split('.')[0])
+		thrnames.append(b64.decode(c.split('.')[0]))
 	return render_template('threads.html', threads = thrs, threadnames = thrnames, username = current_user.name)
 
 @app.route('/threadsadmin')
@@ -119,8 +147,10 @@ def threadsadmin():
 	thrs = []
 	thrnames = []
 	for c in os.listdir('data/threads'):
+		if "$" in c.split('.')[0]:
+			c = c.split('.')[0].replace('$',"/")+ '.' + c.split('.')[1]
 		thrs.append(c)
-		thrnames.append(c.split('.')[0])
+		thrnames.append(b64.decode(c.split('.')[0]))
 	return render_template('threadsadmin.html', threads = thrs, threadnames = thrnames, username = current_user.name)
 
 @app.route('/threads/create')
@@ -132,10 +162,13 @@ def create_thr():
 @login_required
 def new_thread():
 	name = current_user.name
-	id = random.randint(0,646116)
+	cur = datetime.now()
+	id = int(f"{cur.day}{cur.month}{cur.year}{cur.hour}{cur.minute}{cur.second}{cur.microsecond}9129")
 	cur = datetime.now()
 	date = f"{cur.day}.{cur.month}.{cur.year}, {cur.hour}:{cur.minute}:{cur.second}"
-	threadname = request.form.get('thrname')
+	threadname = b64.encode(request.form.get('thrname'))
+	if "/" in threadname:
+		threadname = threadname.replace('/','$')
 	d = "{" + f''' "name": "{name}","date":"{date}", "id":{id}, "messages": [] ''' + "}"
 	print(threadname)
 	print(name)
@@ -146,16 +179,14 @@ def new_thread():
 		print(d)
 		df.write(str(d))
 		df.close()
-			
-	redirect(f'thread/{threadname}')
 
-	return 'done'
+	return 200
 
 @app.route('/thread/<string:threadname>')
 @login_required
 def thread(threadname):
 	messages = {}
-	with open(f'data/threads/{threadname}.json', 'r') as f:
+	with open(f'data/threads/{b64.encode(threadname).replace("/","$")}.json', 'r') as f:
 		data = json.load(f)
 		messages = data['messages']
 		date = data['date']
@@ -169,7 +200,7 @@ def thread(threadname):
 @login_required
 def threadadmin(threadname):
 	messages = {}
-	with open(f'data/threads/{threadname}.json', 'r') as f:
+	with open(f'data/threads/{b64.encode(threadname).replace("/", "$")}.json', 'r') as f:
 		data = json.load(f)
 		messages = data['messages']
 		f.close()
@@ -334,10 +365,18 @@ def delete_thread(threadname):
 	with open('data/admins.json') as a:
 		dat = json.load(a)
 	if current_user.name in dat['admins']:
-		os.remove(f'data/threads/{threadname}.json')
+		with open(f'data/threads/' + b64.encode(threadname).replace('/','$') +  '.json') as f:
+			print(f.read())
+			if f.read() != "":
+				data = json.load(f)
+				for m in data['messages']:
+					if m['media-filename']:
+						os.remove('/static/media/'+m['media-filename'])
+
+		os.remove(f'data/threads/{b64.encode(threadname).replace("/","$")}.json')
 		
 
-		return "removed successfully."
+		return redirect('/threadsadmin')
 	else:
 		return 'you are not Admin. Fuck you.'
 
