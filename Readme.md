@@ -20,7 +20,7 @@ pip install Flask-login
 then
 
 ```
-chmode +x configure
+chmod +x configure
 ```
 and last:
 
@@ -29,6 +29,14 @@ and last:
 ```
 
 ./configure creates required directories for server such as static/media, data, data/threads and writes main construction of server-required files
+
+And FINALLY, you can start main.py
+
+```
+python3 main.py
+```
+
+if you forgot how to start it by bash shell. Also you can use a button to run code in your IDE if you using it.
 
 
 I`m a bad designer.

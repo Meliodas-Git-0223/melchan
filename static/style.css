@@ -103,7 +103,7 @@ form.senderr {
 }
 
 
-.threadbl{
+.thread-block{
     display: block;
     width: 100%;
     height: 90px;
@@ -112,14 +112,14 @@ form.senderr {
     border: 1px solid black;
 }
 
-.threadbl a{
+.thread-block a{
     text-align: center;
     color: white;
     text-decoration: none;
     font-size: 32px;
 }
 
-.threadbl p{
+.thread-block p{
     color: white;
     text-decoration: none;
     font-size: 21px;
@@ -127,31 +127,30 @@ form.senderr {
 }
 
 
-.messbl{
+.message-block{
     display: block;
     width: 100%;
     min-height: 170px;
     height:auto;
-    background-color:rgb(1, 94, 1);
     padding-top: 20px;
     border: 1px solid black;
 }
 
-.messbl a{
+.message-block a{
     text-align: center;
     color: white;
     text-decoration: none;
     font-size: 32px;
 }
 
-.messbltxt{
+.message-text{
     color: white;
     text-decoration: none;
     font-size: 21px;
     background-color: #111111;
 }
 
-.messbldat{
+.message-date{
     color: white;
     text-decoration: none;
     font-size: 21px;
@@ -235,4 +234,16 @@ form.senderr {
     bottom: 0;
     background-color: #333333;
     min-height: 20px;
+}
+
+video{
+    width: 70%;
+}
+
+.my-message{
+    background-color: rgb(1, 94, 1);
+}
+
+.not-my-message{
+    background-color: #333333;
 }
