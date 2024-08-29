@@ -6,11 +6,12 @@ from datetime import datetime
 from werkzeug.utils import secure_filename
 from packages import b64
 
-UPLOAD_FOLDER = 'static/media/'
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'webp', 'mp3', 'gif', 'webm', 'mp4', 'ogg', 'avi', 'bmp', 'wav','hevc', 'heif'])
 images = ['png', 'jpg','heif', 'jpeg', 'webp', 'bmp', 'gif']
 videos = ['webm', 'mp4','ogg', 'avi', 'hevc']
-audio = [ 'mp3', 'wav']
+audio = [ 'mp3', 'wav', 'flac', 'ogg']
+
+UPLOAD_FOLDER = 'static/media/'
+ALLOWED_EXTENSIONS = set(images.copy() + videos.copy() + audio.copy())
 
 app = Flask(__name__)
 app.secret_key = 'wert7iyujhgfdesw345'
@@ -411,4 +412,4 @@ def logout():
 
 
 if __name__ == "__main__":
-	app.run(host="0.0.0.0", port=8080)
+	app.run(host="::", port=8080)
