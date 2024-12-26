@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}{{username}}{% endblock %}
+
+{% block username %}<a href="/user/{{username}}">{{username}}</a>{% endblock %}
+
+{% block main %}
+    <div class="user">
+        <div class="userpic">
+            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="userpic">
+        </div>
+        <div class="nickname">
+            <h1 class="nickname">{{username}}</h1>
+        </div>
+    </div>
+{% endblock %}

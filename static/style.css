@@ -5,6 +5,11 @@ body {
     background-color: #111111;
 }
 
+.ALERT{
+    background-color: #ba0606;
+    color: black;
+}
+
 .header {
     position: fixed;
     top: 0;
@@ -260,4 +265,30 @@ video{
     text-decoration: none;
     font-size: 21px;
     background-color: rgb(1, 94, 1);
+}
+
+
+
+
+.user{
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: space-between;
+    background-color: #333333;
+    border-radius: 15px;
+}
+
+.nickname{
+    display: block;
+    width: 60%;
+}
+
+.userpic{
+    display: block;
+    width: 40%;
+}
+
+.userpic img{
+    width: 100%;
 }

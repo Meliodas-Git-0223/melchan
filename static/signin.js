@@ -9,28 +9,38 @@ let name;
 let button = document.querySelector('.submitbutt')
 
 function check(element){
-    let tr;
+    let status;
     let name;
     name = element.value;
 
-    fetch('/api/checkname/' + name)
-        .then(response => response.json())
-        .then(data => {
-            // Process the data received from the server
-            if (data == 1) {
-                tr = 'занято'
-                button.disabled = true;
-            } else {
-                tr = 'свободно'
-                button.disabled = false;
-            }
-            warning.textContent = 'Имя' + ' ' + name + ' ' + tr;
-            console.log(data);
-        })
-        .catch(error => {
-            // Handle any errors that occurred during the request
-            console.error('Error:', error);
-        });
+    if (name.length < 4){
+        warning.textContent = 'Никнейм должен быть не короче 4 символов';
+        button.disabled = true;
+
+    }else if (name.length > 24){
+        warning.textContent = 'Никнейм должен быть не длиннее 24 символов';
+        button.disabled = true;
+    } else{
+
+        fetch('/api/checkname/' + name)
+            .then(response => response.json())
+            .then(data => {
+                // Process the data received from the server
+                if (data == 1) {
+                    status = 'занято'
+                    button.disabled = true;
+                } else {
+                    status = 'свободно'
+                    button.disabled = false;
+                }
+                warning.textContent = 'Имя' + ' ' + name + ' ' + status;
+                console.log(data);
+            })
+            .catch(error => {
+                // Handle any errors that occurred during the request
+                console.error('Error:', error);
+            });
+    }
 }
 
 
