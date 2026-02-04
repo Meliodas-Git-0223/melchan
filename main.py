@@ -5,6 +5,8 @@ from datetime import datetime
 from werkzeug.utils import secure_filename
 from packages import b64
 import config
+from PIL import Image
+
 
 
 
@@ -108,13 +110,15 @@ def delete_thread(threadname):
 
 
 
-
 @app.route('/api/getthread/<string:threadname>')
+@app.route('/api/getthread/<string:threadname>/<int:page>')
 @login_required
-def getThreadInfo(threadname):
+def getThreadInfo(threadname,page=1):
 	with open('data/threads/'+b64.encode(threadname).replace("/", "$")+'.json',"r") as f:
 		data = json.load(f)
-	return jsonify(data['messages'])
+	amount = 30
+	print(data['messages'][(page*amount)-amount:(page*amount)])
+	return jsonify(data['messages'][(page*amount)-amount:(page*amount)])
 
 @app.route('/newthread', methods = ["POST"])
 @login_required
@@ -122,9 +126,8 @@ def new_thread():
 	name = current_user.name
 	cur = datetime.now()
 	id = int(f"{cur.day}{cur.month}{cur.year}{cur.hour}{cur.minute}{cur.second}{cur.microsecond}9129")
-	cur = datetime.now()
-	date = f"{cur.day}.{cur.month}.{cur.year}, {cur.hour}:{cur.minute}:{cur.second}"
-	threadname = b64.encode(request.form.get('thrname'))
+	date = str(datetime.now().timestamp())
+	threadname = b64.encode(str(request.form.get('thrname')))
 	if "/" in threadname:
 		threadname = threadname.replace('/','$')
 	d = "{" + f''' "name": "{name}","date":"{date}", "id":{id}, "messages": [] ''' + "}"
@@ -148,7 +151,7 @@ def new_thread():
 		f.write(json.dumps(data, indent=4))
 		f.close()
 
-	return 200
+	return 'ok'
 
 @app.route("/newmessage", methods=["POST"])
 @login_required
@@ -172,7 +175,14 @@ def postmessage():
 
 			if file and allowed_file(file.filename):
 				filename = secure_filename(b64.encode(f"{cur.day}.{cur.month}.{cur.year}, {cur.hour}:{cur.minute}:{cur.second}:{cur.microsecond}") + "."+ file.filename.split(".")[1])
-				file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+				if media == 'image':
+					file.save(os.path.join(app.config['UPLOAD_FOLDER'],'full', filename))
+				else:
+					file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+				if media == 'image':
+					image = Image.open(f"static/media/full/{filename}")
+					image.thumbnail((480,360))
+					image.save(f"static/media/thumbnails/{filename.split('.')[0]}.jpg")
 		
 		if tfile =='false':
 			media = None
@@ -189,18 +199,24 @@ def postmessage():
 			
 		if message:
 			with open(f'data/threads/{b64.encode(threadname).replace("/", "$")}.json', 'w') as f:
-				data['messages'].append({'name': name,'date':date, 'text': message, 'id':messageid, 'media':media, 'media_filename':filename})
+				if (media and media == 'image'):
+					data['messages'].append({'name': name,'date':date, 'text': message, 'id':messageid, 'media':media, 'media_filename':filename, 'thumbnail':f"{filename.split('.')[0]}.jpg"})
+				else:
+					data['messages'].append({'name': name,'date':date, 'text': message, 'id':messageid, 'media':media, 'media_filename':filename})
 				f.write(json.dumps(data, indent=4))
 				f.close()
-			return 200
+			return 'ok'
 		elif (not message) and media:
 			with open(f'data/threads/{b64.encode(threadname).replace("/", "$")}.json', 'w') as f:
-				data['messages'].append({'name': name,'date':date, 'text': None, 'id':messageid, 'media':media, 'media_filename':filename})
+				if (media and media == 'image'):
+					data['messages'].append({'name': name,'date':date, 'text': message, 'id':messageid, 'media':media, 'media_filename':filename, 'thumbnail':f"{filename.split('.')[0]}.jpg"})
+				else:
+					data['messages'].append({'name': name,'date':date, 'text': message, 'id':messageid, 'media':media, 'media_filename':filename})
 				f.write(json.dumps(data, indent=4))
 				f.close()
-			return 200
+			return 'ok'
 		else:
-			return 0
+			return 'not ok'
 	except Exception as e:
 		print("Ну всё, пизда")
 		print(e)
@@ -213,29 +229,35 @@ def postmessage():
 @app.route('/deletemypost/<string:threadname>/<string:messid>')
 @login_required
 def removepost(threadname,messid):
-	threadname = b64.encode(threadname).replace("/", "$")
+	threadname = b64.encode(str(threadname)).replace("/", "$")
 	with open(f'data/threads/{threadname}.json', 'r') as f:
 		data = json.load(f)
 		f.close()
 
 	for el in data['messages']:
-		if el['id'] == int(messid):
-			if el['media-filename']:
-				os.remove('static/media/'+el['media-filename'])
+		if (el['id'] == int(messid)):
+			print(el['id'])
+			print((el['id'] == int(messid)) and (el['name'] == current_user.name))
+			print(el['id'] == int(messid) and el['name'] == current_user.name)
+			if el['media']:
+				os.remove('static/media/full/'+el['media-filename'])
+				os.remove('static/media/thumbnail/'+el['thumbnail'])
 			data['messages'].remove(el)
 
 	with open(f'data/threads/{threadname}.json', 'w') as f:
 		f.write(json.dumps(data, indent=4))
 		f.close()
 		
-	return redirect('/thread/'+ b64.decode(threadname))
+	return "ok"
 
 @app.route("/api/getthreads/<int:page>")
+@app.route("/api/getthreads")
 @login_required
 def getThreads(page=1):
 	amount = 30
 	with open('data/threads/threads.json', "r") as f:
 		data = json.load(f)
+	print(data['threads'][(page*amount)-amount:amount])
 	return jsonify(data['threads'][(page*amount)-amount:amount])
 
 @app.route("/api/checkname/<string:nickname>")
@@ -265,10 +287,10 @@ def checkName(nickname):
 
 
 #      PAGES LOADING
-
-@app.route('/threads')
+@app.route("/threads")
+@app.route("/threads/<int:page>")
 @login_required
-def threads():
+def threads(page=1):
 	return render_template('threads.html', username=current_user.name)
 
 
@@ -294,8 +316,9 @@ def create_thr():
 
 
 @app.route('/thread/<string:threadname>')
+@app.route('/thread/<string:threadname>/<int:page>')
 @login_required
-def thread(threadname):
+def thread(threadname,page=1):
 	return render_template('thread.html', thread = threadname, username = current_user.name)
 
 
@@ -386,7 +409,7 @@ def signin():
 					password_hash = hash_object.hexdigest()
 
 
-					if ((len(name) < config.max_nickname_len) and (len(name) > config.min_nickname_len)):
+					if ((len(name) <= config.max_nickname_len) and (len(name) >= config.min_nickname_len)):
 						data['users'].append({"id": user_id, 'name': name, 'password': password_hash})
 						print(data)
 						with open('data/users.json', 'w') as df:
@@ -435,4 +458,4 @@ def logout():
 
 
 if __name__ == "__main__":
-	app.run(host="0.0.0.0", port=8080)
+    app.run(host="0.0.0.0", port=8080)

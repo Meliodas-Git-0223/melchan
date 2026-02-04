@@ -18,6 +18,7 @@ function send(){
 
 function send(){
         let message = document.querySelector(".message-input");
+        let send_status = document.querySelector(".send_status");
         let name = document.querySelector('.username').textContent;
         let file = document.querySelector('#file');
         let threadname = document.querySelector('.threadname').textContent
@@ -37,7 +38,17 @@ function send(){
         formData.append('threadname', threadname);
 
 	    xhr.open('POST', url, true);
+        send_status.style.color = '#f00';
 	    xhr.send(formData);
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+              console.log('Ответ от сервера:', xhr.responseText);
+              send_status.style.color = '#0f0';
+            } else {
+              console.error('Ошибка загрузки:', xhr.status);
+            }
+          };
 
         
         message.value = '';

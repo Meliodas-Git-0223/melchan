@@ -1,24 +1,43 @@
 const mainDiv = document.querySelector('.main');
-const nameBlock = document.querySelector('.username').textContent
+const nameBlock = document.querySelector('.username').textContent;
+const threadName = document.querySelector('.threadname').textContent;
+
 
 setTimeout(function() {
-    console.log('Delayed execution');
-  }, 1000);
+  const nextPage_prevPage = document.createElement('div');
+  nextPage_prevPage.classList.add('message-block');
+  nextPage_prevPage.setAttribute('id', 'next-page_prev-page');
+  mainDiv.appendChild(nextPage_prevPage);
+  
+  const nextPage = document.createElement('a');
+  nextPage.classList.add('next-page');
+  nextPage.textContent = "   >>>Следующая>>>";
+  nextPage.href = `/thread/${threadName}/${parseInt(page)+1}`;
 
+  const prevPage = document.createElement('a');
+  prevPage.classList.add('next-page');
+  prevPage.textContent = "<<<Предыдущая<<<   ";
+  prevPage.href = `/thread/${threadName}/${parseInt(page)-1}`;
+  
+  nextPage_prevPage.appendChild(prevPage);
+  nextPage_prevPage.appendChild(nextPage);
+  }, 1000);
 
 
 thrname = document.querySelector('.threadname').textContent
 
+let page = String(document.location).split('/')[String(document.location).split('/').length-1];
+console.log(`page ${String(document.location).split('/')[String(document.location).split('/').length-1]}`)
 
-fetch('/api/getthread/'+ thrname)
+const messagesDiv = document.createElement('div');
+    messagesDiv.classList.add('messages');
+    mainDiv.appendChild(messagesDiv);
+
+fetch(`/api/getthread/${thrname}/${page}`)
   .then(response => response.json())
   .then(data => {
     console.log(data)
     // Process the data received from the server
-    const messagesDiv = document.createElement('div');
-    messagesDiv.classList.add('messages');
-    mainDiv.appendChild(messagesDiv);
-
     data.forEach(message => {
       const messageDiv = document.createElement('div');
       messageDiv.classList.add('message-block');
@@ -50,25 +69,18 @@ fetch('/api/getthread/'+ thrname)
         messageDiv.appendChild(mediaElement);
 
         if (message.media === 'image') {
-          const HideShowButt = document.createElement('button');
-          HideShowButt.id = message.media_filename.split(".").shift()+'_BUTT';
-          HideShowButt.textContent = 'Показать изображение'
-          HideShowButt.onclick = function() {
-            ShowHide(this);
-          };
-          mediaElement.appendChild(HideShowButt);
-
           const imgElement = document.createElement('img');
-          imgElement.id = message.media_filename.split(".").shift();
-          imgElement.src = `/static/media/${message.media_filename}`;
-          imgElement.alt = '';
-          imgElement.style.cssText = 'display:none;'
-          imgElement.width = 250;
-          imgElement.loading = 'lazy';
+          imgElement.id = message.thumbnail;
+          imgElement.src = `/static/media/thumbnails/${message.thumbnail}`;
+          imgElement.style.maxWidth = '85%';
           imgElement.onclick = function() {
-            makebigger(this);
+            const imgElementf = document.createElement('img');
+            imgElementf.id = message.media_filename;
+            imgElementf.src = `/static/media/full/${message.media_filename}`;
+            imgElementf.classList.add('fullImage')
+            mediaElement.removeChild(imgElement);
+            mediaElement.appendChild(imgElementf);
           };
-
           mediaElement.appendChild(imgElement);
         } else if (message.media === 'audio') {
           const audioElement = document.createElement('audio');
@@ -90,7 +102,19 @@ fetch('/api/getthread/'+ thrname)
       dateElement.classList.add('message-date');
       dateElement.textContent = `Date: ${message.date}`;
       messageDiv.appendChild(dateElement);
+
+      if (message.name == nameBlock){
+        const deleteButton = document.createElement('button');
+        deleteButton.classList.add('delete_button');
+        deleteButton.addEventListener('click', () => deleteMessage(threadName,message.id));
+        deleteButton.textContent = `delete message`;
+        messageDiv.appendChild(deleteButton);
+      }
+
+
   })
+
+  
   .catch(error => {
     // Handle any errors that occurred during the request
     console.error('Error:', error);
@@ -98,26 +122,7 @@ fetch('/api/getthread/'+ thrname)
 },);
 
 
-
-
-
-
-
-show = false;
-
-
-
-
-
-function ShowHide(button){
-  image = document.querySelector(`#${button.id.split("_").shift()}`)
-  console.log(`${button.id.split("_").shift()}`)
-  show = !show
-  if (show) {
-        image.style.cssText = 'display:block;';
-        button.textContent = 'Скрыть';
-    } else {
-        image.style.cssText = 'display:none;';
-        button.textContent = 'Показать изображение';
-    }
-  };
+function deleteMessage(threadName,message){
+  fetch(`/deletemypost/${threadName}/${message}`)
+  console.log(`${threadName}/${message}`)
+}

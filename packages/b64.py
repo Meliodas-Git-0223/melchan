@@ -1,19 +1,7 @@
-"""
-b65 - more friendly base64 encode/decode
-"""
+import base64
 
-from base64 import b64encode, b64decode
+def encode(txt, coding='utf-8'):
+	return (str(base64.b64encode(txt.encode(coding)))[2:-1])
 
-
-def encode(text, coding='utf-8'):
-    """
-    encodes utf-8 string via base64 and returns base64 string
-    """
-    return b64encode(text.encode(coding)).decode(coding)
-
-
-def decode(text, coding='utf-8'):
-    """
-    decodes base64 string and returns utf-8 string
-    """
-    return b64decode(text.encode(coding)).decode(coding)
+def decode(txt, coding='utf-8'):
+	return base64.b64decode(txt.encode(coding)).decode('utf-8')

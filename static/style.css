@@ -76,6 +76,11 @@ form.senderr {
     margin-right: auto;
 }
 
+.file{
+    display: block;
+    width: 50%;
+}
+
 
 .thrname {
     background-color: #333333;
@@ -171,6 +176,8 @@ form.senderr {
     margin-left: 20px;
 }
 
+
+
 @media  screen and (min-width:1000px) {
     .writemsg input{
         width: 88%;
@@ -183,7 +190,11 @@ form.senderr {
         width: 8%;
         height: 25px;
         overflow: hidden;
-    }   
+    }
+
+    .fullImage {
+        width: 50%
+    }
 
 }
 
@@ -201,6 +212,10 @@ form.senderr {
         overflow: hidden;
     }
 
+    .fullImage {
+        width: 50%
+    }
+
 }
 
 @media  screen and (max-width:599px) {
@@ -215,6 +230,10 @@ form.senderr {
         width: 20%;
         height: 30px;
         overflow: hidden;
+    }
+
+    .fullImage {
+        width: 85%
     }
 
 }
